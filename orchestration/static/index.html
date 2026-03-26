@@ -147,7 +147,64 @@
             font-size: 16px;
             line-height: 1.6;
             color: #1d1d1f;
-            white-space: pre-wrap;
+        }
+
+        .content p {
+            margin-bottom: 1em;
+        }
+
+        .content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .content h1, .content h2, .content h3, .content h4, .content h5, .content h6 {
+            margin-top: 1.2em;
+            margin-bottom: 0.5em;
+            font-weight: 600;
+        }
+
+        .content ul, .content ol {
+            margin-bottom: 1em;
+            padding-left: 24px;
+        }
+
+        .content li {
+            margin-bottom: 0.25em;
+        }
+
+        .content pre {
+            background-color: #f5f5f7;
+            padding: 16px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin-bottom: 1em;
+            font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+        }
+
+        .content code {
+            font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+            background-color: #f5f5f7;
+            padding: 0.2em 0.4em;
+            border-radius: 6px;
+            font-size: 0.9em;
+            border: 1px solid var(--border-color);
+        }
+
+        .content pre code {
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+            font-size: inherit;
+            border: none;
+        }
+
+        .content blockquote {
+            border-left: 4px solid var(--accent-color);
+            margin: 0 0 1em 0;
+            padding-left: 16px;
+            color: #515154;
         }
 
         .skeleton {
@@ -192,6 +249,7 @@
         }
 
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 
@@ -267,7 +325,7 @@
             // Handle Direct response
             directPromise.then(res => {
                 if(res.error) directContent.innerHTML = `<span style="color:#ff3b30;">${res.error}</span>`;
-                else directContent.innerText = res.answer;
+                else directContent.innerHTML = marked.parse(res.answer);
             });
 
             // Handle RAG response
@@ -275,7 +333,7 @@
                 if(res.error) {
                     ragContent.innerHTML = `<span style="color:#ff3b30;">${res.error}</span>`;
                 } else {
-                    ragContent.innerText = res.answer;
+                    ragContent.innerHTML = marked.parse(res.answer);
                     if(res.context_used && res.context_used.length > 0) {
                         ragContext.style.display = 'block';
                         ragContext.innerHTML = `<h4>💡 Wykorzystany kontekst z BigQuery:</h4>`;
