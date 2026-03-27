@@ -2,6 +2,10 @@
 
 Suwerenne i wiarygodne AI - Od dokumentów firmowych do inteligentnej bazy wiedzy w oparciu o model Bielik i Google Cloud.
 
+## Architektura systemu
+
+Szczegółowy diagram komponentów, przepływów informacji i ścieżek orkiestratora (RAG, Direct, Ingestion) dostępny jest w pliku [ARCHITECTURE.md](./ARCHITECTURE.md).
+
 ## O projekcie
 
 Niniejsze repozytorium prezentuje kompletne, bezserwerowe (serverless) rozwiązanie klasy RAG (Retrieval-Augmented Generation) wdrożone w chmurze Google Cloud. Głównym celem aplikacji jest dostarczenie wydajnego i suwerennego inteligentnego asystenta zdolnego do odpowiadania na pytania użytkownika w oparciu o dedykowaną bazę wiedzy (np. wewnętrzne dokumenty, regulaminy).
