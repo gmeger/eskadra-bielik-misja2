@@ -165,7 +165,8 @@ async def ask_question(request_data: AskRequest):
         
     return {
         "answer": answer,
-        "context_used": context_docs
+        "context_used": context_docs,
+        "prompt_used": prompt
     }
 
 @app.post("/ask_direct")

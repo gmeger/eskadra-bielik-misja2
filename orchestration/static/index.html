@@ -248,6 +248,40 @@
             border-left: 2px solid var(--accent-color);
         }
 
+        .prompt-box {
+            margin-top: 12px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+
+        .prompt-box summary {
+            cursor: pointer;
+            padding: 10px 14px;
+            background: #e8f4e8;
+            border-radius: 12px;
+            color: #1d4d2a;
+            font-weight: 600;
+            font-size: 13px;
+            user-select: none;
+        }
+
+        .prompt-box[open] summary {
+            border-radius: 12px 12px 0 0;
+        }
+
+        .prompt-box pre {
+            margin: 0;
+            padding: 14px 16px;
+            background: #f0faf0;
+            border-radius: 0 0 12px 12px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #1d1d1f;
+            font-family: ui-monospace, monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
@@ -275,6 +309,10 @@
             <p class="desc">Odpowiedź wygenerowana w oparciu o odszukane w locie dokumenty z BigQuery Vector Search.</p>
             <div id="ragContent" class="content"><i>Czekam na Twoje pytanie...</i></div>
             <div id="ragContext" class="context-box" style="display: none;"></div>
+            <details id="ragPrompt" class="prompt-box" style="display: none;">
+                <summary>🔍 Pełny prompt wysłany do Bielika</summary>
+                <pre id="ragPromptContent"></pre>
+            </details>
         </div>
     </div>
 
@@ -285,6 +323,8 @@
         const directContent = document.getElementById('directContent');
         const ragContent = document.getElementById('ragContent');
         const ragContext = document.getElementById('ragContext');
+        const ragPrompt = document.getElementById('ragPrompt');
+        const ragPromptContent = document.getElementById('ragPromptContent');
 
         const getSkeletonHTML = () => `
             <div class="skeleton p1"></div>
@@ -303,6 +343,9 @@
             ragContent.innerHTML = getSkeletonHTML();
             ragContext.style.display = 'none';
             ragContext.innerHTML = '';
+            ragPrompt.style.display = 'none';
+            ragPrompt.removeAttribute('open');
+            ragPromptContent.textContent = '';
 
             const callApi = async (url) => {
                 try {
@@ -340,6 +383,10 @@
                         res.context_used.forEach(ctx => {
                             ragContext.innerHTML += `<div class="context-item">${ctx}</div>`;
                         });
+                    }
+                    if(res.prompt_used) {
+                        ragPrompt.style.display = 'block';
+                        ragPromptContent.textContent = res.prompt_used;
                     }
                 }
             });
