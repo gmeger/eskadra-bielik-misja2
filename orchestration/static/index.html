@@ -282,6 +282,79 @@
             line-height: 1.6;
         }
 
+        .ingest-section {
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 32px;
+        }
+
+        .ingest-section summary {
+            cursor: pointer;
+            padding: 14px 20px;
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #515154;
+            user-select: none;
+            list-style: none;
+        }
+
+        .ingest-section summary::before {
+            content: '＋ ';
+        }
+
+        .ingest-section[open] summary {
+            border-radius: 16px 16px 0 0;
+            border-bottom: none;
+            color: var(--text-color);
+        }
+
+        .ingest-section[open] summary::before {
+            content: '－ ';
+        }
+
+        .ingest-body {
+            background: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 16px 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .ingest-body label {
+            font-size: 14px;
+            color: #515154;
+        }
+
+        .ingest-body input[type="file"] {
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .ingest-btn {
+            padding: 10px 24px;
+            font-size: 15px;
+            border-radius: 12px;
+        }
+
+        .ingest-status {
+            font-size: 14px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .ingest-status.ok  { background: #e8f4e8; color: #1d4d2a; }
+        .ingest-status.err { background: #fdecea; color: #7f1d1d; }
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
@@ -315,6 +388,16 @@
             </details>
         </div>
     </div>
+
+    <details class="ingest-section">
+        <summary>Zasilanie bazy wiedzy (upload CSV)</summary>
+        <div class="ingest-body">
+            <label for="csvFile">Format: kolumny <code>id</code> i <code>text</code></label>
+            <input type="file" id="csvFile" accept=".csv">
+            <button class="ingest-btn" id="ingestBtn">Wgraj do BigQuery</button>
+            <span id="ingestStatus" class="ingest-status"></span>
+        </div>
+    </details>
 
     <script>
         const submitBtn = document.getElementById('submitBtn');
@@ -401,6 +484,39 @@
         promptInput.addEventListener('keypress', (e) => {
             if(e.key === 'Enter') askBielik();
         });
+
+        const ingestBtn = document.getElementById('ingestBtn');
+        const csvFile = document.getElementById('csvFile');
+        const ingestStatus = document.getElementById('ingestStatus');
+
+        ingestBtn.addEventListener('click', async () => {
+            const file = csvFile.files[0];
+            if (!file) {
+                showIngestStatus('Wybierz plik CSV.', false);
+                return;
+            }
+            ingestBtn.disabled = true;
+            showIngestStatus('Wysyłanie...', null);
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                const res = await fetch('/ingest', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Błąd serwera');
+                showIngestStatus(`✅ Dodano ${data.inserted_count} dokumentów do BigQuery.`, true);
+                csvFile.value = '';
+            } catch(e) {
+                showIngestStatus(`❌ ${e.message}`, false);
+            } finally {
+                ingestBtn.disabled = false;
+            }
+        });
+
+        function showIngestStatus(msg, ok) {
+            ingestStatus.textContent = msg;
+            ingestStatus.className = 'ingest-status ' + (ok === true ? 'ok' : ok === false ? 'err' : '');
+            ingestStatus.style.display = 'inline-block';
+        }
     </script>
 </body>
 </html>
